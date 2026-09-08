@@ -13,7 +13,7 @@ async function q(path,method='GET',body){
 }
 function fromServer(l,r,i,m){
  const names=new Map(i.map(x=>[x.id,x]));
- return {locations:l.map(x=>({id:x.id,name:x.name,address:x.address||'',contact:x.contact||'',notes:x.notes||''})),rooms:r.map(x=>({id:x.id,locationId:x.location_id,name:x.name,floor:x.floor||'',notes:x.notes||''})),items:i.map(x=>({id:x.id,name:x.name,category:x.category,quantity:Number(x.quantity),unit:x.unit,minimum:Number(x.minimum),locationId:x.location_id,roomId:x.room_id,barcode:x.barcode||'',updatedBy:x.updated_by,updatedAt:new Date(x.updated_at).toLocaleString('fr-LU'),serverUpdatedAt:x.updated_at})),movements:m.map(x=>({id:x.id,itemId:x.item_id,itemName:names.get(x.item_id)?.name||'Article supprimé',delta:Number(x.delta),reason:x.reason,actor:x.actor,createdAt:new Date(x.created_at).toLocaleString('fr-LU')}))};
+ return {locations:l.map(x=>({id:x.id,name:x.name,address:x.address||'',contact:x.contact||'',notes:x.notes||''})),rooms:r.map(x=>({id:x.id,locationId:x.location_id,name:x.name,floor:x.floor||'',notes:x.notes||''})),items:i.map(x=>({id:x.id,name:x.name,category:x.category,quantity:Number(x.quantity),unit:x.unit,minimum:Number(x.minimum),locationId:x.location_id,roomId:x.room_id,barcode:x.barcode||'',notes:x.notes||'',updatedBy:x.updated_by,updatedAt:new Date(x.updated_at).toLocaleString('fr-LU'),serverUpdatedAt:x.updated_at})),movements:m.map(x=>({id:x.id,itemId:x.item_id,itemName:names.get(x.item_id)?.name||'Article supprimé',delta:Number(x.delta),reason:x.reason,actor:x.actor,createdAt:new Date(x.created_at).toLocaleString('fr-LU')}))};
 }
 async function load(){
  stockReady=false;status.textContent='Chargement du stock partagé…';
@@ -26,7 +26,7 @@ async function load(){
 function wire(table,x){
  if(table==='locations')return {id:x.id,name:x.name,address:x.address||'',contact:x.contact||'',notes:x.notes||''};
  if(table==='rooms')return {id:x.id,location_id:x.locationId,name:x.name,floor:x.floor||'',notes:x.notes||''};
- return {id:x.id,name:x.name,category:x.category,quantity:Number(x.quantity),unit:x.unit,minimum:Number(x.minimum),location_id:x.locationId||null,room_id:x.roomId||null,barcode:x.barcode||'',updated_by:x.updatedBy};
+ return {id:x.id,name:x.name,category:x.category,quantity:Number(x.quantity),unit:x.unit,minimum:Number(x.minimum),location_id:x.locationId||null,room_id:x.roomId||null,barcode:x.barcode||'',notes:x.notes||'',updated_by:x.updatedBy};
 }
 save=async function(){
  if(!stockReady||stockBusy){db=structuredClone(baseline);render();notify('Attendez la connexion au stock partagé.');return;}
@@ -70,5 +70,7 @@ itemForm=function(title,item={},done){
  baseItemForm(title,item,done);
  const label=document.createElement('label'),span=document.createElement('span'),input=document.createElement('input');
  span.textContent='Code-barres / EAN';input.name='barcode';input.value=item.barcode||'';input.maxLength=200;input.autocomplete='off';label.append(span,input);document.querySelector('#form').prepend(label);
+ const noteLabel=document.createElement('label'),noteTitle=document.createElement('span'),note=document.createElement('textarea');
+ noteTitle.textContent='Notes';note.name='notes';note.value=item.notes||'';note.placeholder='Ajouter une note utile pour cet article…';noteLabel.append(noteTitle,note);document.querySelector('#form').insertBefore(noteLabel,document.querySelector('#form button[type="submit"]'));
 };
 load().catch(()=>{});
